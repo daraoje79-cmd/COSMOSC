@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Geist } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
@@ -22,7 +23,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={cn("font-sans", geist.variable)}>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">{children}
+        <Toaster theme="dark" richColors position="top-center" />
+      </body>
     </html>
   );
 }
