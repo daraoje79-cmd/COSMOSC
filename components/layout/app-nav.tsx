@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Bell, PlusSquare, LayoutDashboard, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LogoutButton } from "./logout-button";
 
 const items = [
   { href: "/feed", label: "Feed", icon: Home },
@@ -41,6 +42,7 @@ export function AppNav() {
             {label}
           </Link>
         ))}
+        <LogoutButton />
       </aside>
 
       {/* Mobile bottom bar */}
