@@ -22,3 +22,14 @@ export const loginSchema = z.object({
 
 export type SignupInput = z.infer<typeof signupSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+
+export const resetRequestSchema = z.object({
+  email: z.string().trim().email("Enter a valid email"),
+});
+
+export const newPasswordSchema = z.object({
+  password: z.string().min(8, "At least 8 characters"),
+});
+
+export type ResetRequestInput = z.infer<typeof resetRequestSchema>;
+export type NewPasswordInput = z.infer<typeof newPasswordSchema>;
