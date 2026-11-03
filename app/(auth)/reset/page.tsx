@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -17,17 +18,23 @@ export default function ResetPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isSubmitSuccessful },
+    formState: { errors, isSubmitting },
   } = useForm<ResetRequestInput>({ resolver: zodResolver(resetRequestSchema) });
 
-  async function onSubmit({ email }: ResetRequestInput) {
-    const { error } = await createClient().auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/reset/update`,
-    });
-    if (error) toast.error(error.message);
-  }
+  const [sent, setSent] = useState(false);
 
-  if (isSubmitSuccessful) {
+  async function onSubmit({ email }: ResetRequestInput) {
+  const { error } = await createClient().auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/auth/callback?next=/reset/update`,
+  });
+  if (error) {
+    toast.error(error.message);
+    return;
+  }
+  setSent(true);
+}
+
+  if (sent) {
     return (
       <div className="space-y-4 rounded-xl border border-border bg-card p-6 text-center">
         <p>If that email has an account, a reset link is on its way.</p>
