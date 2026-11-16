@@ -16,11 +16,23 @@ export default function SignupPage() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
     defaultValues: { role: "fan" },
   });
+
+    async function checkUsername(e: React.FocusEvent<HTMLInputElement>) {
+    const value = e.target.value.trim().toLowerCase();
+    if (!/^[a-z0-9_]{3,30}$/.test(value)) return;
+    const { data } = await createClient().rpc("username_available", {
+      p_username: value,
+    });
+    if (data === false) {
+      setError("username", { message: "That username is already taken" });
+    }
+  }
 
   async function onSubmit(values: SignupInput) {
     const supabase = createClient();
@@ -37,7 +49,11 @@ export default function SignupPage() {
       },
     });
     if (error) {
-      toast.error(error.message);
+      toast.error(
+        error.message.includes("Database error")
+          ? "That username is already taken"
+          : error.message,
+      );
       return;
     }
     toast.success("Check your email to verify your account");
@@ -60,7 +76,11 @@ export default function SignupPage() {
       </div>
       <div className="space-y-2">
         <Label htmlFor="username">Username</Label>
-        <Input id="username" autoCapitalize="none" {...register("username")} />
+        <Input
+          id="username"
+          autoCapitalize="none"
+          {...register("username", { onBlur: checkUsername })}
+        />
         {errors.username && (
           <p className="text-sm text-destructive">{errors.username.message}</p>
         )}
