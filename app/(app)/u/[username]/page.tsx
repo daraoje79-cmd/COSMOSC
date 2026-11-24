@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { FollowButton } from "@/components/profile/follow-button";
+import Link from "next/link";
 
 type Props = { params: Promise<{ username: string }> };
 
@@ -45,6 +47,22 @@ export default async function CreatorProfilePage({ params }: Props) {
   const { username } = await params;
   const profile = await getProfile(username);
   if (!profile) notFound();
+    const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let isFollowing = false;
+  if (user && user.id !== profile.id) {
+    const { data: f } = await supabase
+      .from("follows")
+      .select("follower_id")
+      .eq("follower_id", user.id)
+      .eq("following_id", profile.id)
+      .maybeSingle();
+    isFollowing = !!f;
+  }
+  const isOwnProfile = user?.id === profile.id;
 
   const links: { label: string; url: string }[] = Array.isArray(profile.links)
     ? profile.links
@@ -101,15 +119,29 @@ export default async function CreatorProfilePage({ params }: Props) {
           </ul>
         )}
 
-        <div className="mt-4 flex gap-6 text-sm">
-          <span>
-            <strong>{profile.follower_count}</strong>{" "}
-            <span className="text-muted-foreground">Followers</span>
-          </span>
-          <span>
+        <div className="mt-4 space-y-3">
+          {isOwnProfile ? (
+            <Link href="/settings/profile" className="text-sm text-brand">
+              Edit profile
+            </Link>
+          ) : (
+            <FollowButton
+              targetId={profile.id}
+              initialFollowing={isFollowing}
+              initialCount={profile.follower_count}
+            />
+          )}
+          <p className="text-sm">
             <strong>{profile.following_count}</strong>{" "}
             <span className="text-muted-foreground">Following</span>
-          </span>
+            {isOwnProfile && (
+              <>
+                {" · "}
+                <strong>{profile.follower_count}</strong>{" "}
+                <span className="text-muted-foreground">Followers</span>
+              </>
+            )}
+          </p>
         </div>
 
         <div className="mt-8 rounded-xl border border-border bg-card p-6 text-center text-muted-foreground">
