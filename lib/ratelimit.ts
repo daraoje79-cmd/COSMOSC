@@ -32,3 +32,11 @@ export async function allow(limiter: Ratelimit | null, key: string) {
     return true;
   }
 }
+
+export const postLimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(10, "1 m"),
+      prefix: "rl:post",
+    })
+  : null;

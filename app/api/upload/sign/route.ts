@@ -63,5 +63,11 @@ export async function POST(request: Request) {
     return fail(500, "sign_failed", "Could not prepare the upload");
   }
 
-  return NextResponse.json({ bucket, path, token: data.token, kind });
+    return NextResponse.json({
+    bucket,
+    path,
+    token: data.token,
+    signedUrl: data.signedUrl,
+    kind,
+  });
 }
